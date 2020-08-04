@@ -15,26 +15,26 @@ w = 200 / 1000
 
 
 # r function from x y z
-def r_Up_get(z):
+def r_up_get(z):
     if z == 50:
         return 200
     return r1 + z * r
 
 
-def A_side_get(z):
+def area_side_get(z):
     if z == 0:
-        return np.pi * (r_Up_get(z) ** 2)
-    return np.pi * (r_Up_get(z) ** 2 - r_Up_get(z - 1) ** 2) / 2
+        return np.pi * (r_up_get(z) ** 2)
+    return np.pi * (r_up_get(z) ** 2 - r_up_get(z - 1) ** 2) / 2
 
 
-def A_Up(z):
-    return np.pi * r_Up_get(z) * l
+def area_up(z):
+    return np.pi * r_up_get(z) * l
 
 
-def A_Down(z):
+def area_down(z):
     if z == 0:
         return 2 * r1 * l
-    return np.pi * r_Up_get(z - 1) * l
+    return np.pi * r_up_get(z - 1) * l
 
 
 def index2z(j):
@@ -55,47 +55,43 @@ for k in range(n):
     for i in range(1, 200):
         for j in range(101):
             if j == 0:
-                a[i][j] = ((2 * K * A_side_get(index2z(j)) / l) * (a[i + 1][j] + a[i - 1][j]) + h_water * A_Up(
-                    index2z(j)) * T_water + A_Down(index2z(j)) * K * a[i][j + 1]) / (
-                                  2 * K * A_side_get(index2z(j)) / l + K * A_Down(index2z(j)) / l + A_Up(
-                              index2z(j)) * h_water)
+                a[i][j] = (area_up(index2z(j)) * h_water * T_water + a[i][j + 1] * K * (
+                        area_down(index2z(j)) / r + 2 * area_side_get(index2z(j)) / l * (a[i - 1][j] + a[i + 1][j]))) / (
+                                  area_up(index2z(j)) * h_water + K * (
+                                   area_down(index2z(j)) / r + 2 * area_side_get(index2z(j)) / l))
             elif j == 100:
-                a[i][j] = ((2 * K * A_side_get(index2z(j)) / l) * (a[i + 1][j] + a[i - 1][j]) + h_air * A_Up(
-                    index2z(j)) * T_air + A_Down(index2z(j)) * K * a[i][j - 1]) / (
-                                  2 * K * A_side_get(index2z(j)) / l + K * A_Down(index2z(j)) / l + A_Up(
-                              index2z(j)) * h_air)
+                a[i][j] = (area_up(index2z(j)) * h_air * T_air + a[i][j - 1] * K * (
+                        area_down(index2z(j)) / r + 2 * area_side_get(index2z(j)) / l) * (a[i - 1][j] + a[i + 1][j])) / (
+                                  area_up(index2z(j)) * h_water + K * (
+                                   area_down(index2z(j)) / r + 2 * area_side_get(index2z(j)) / l))
             elif 0 < j < 51:
-                (K / l * (2 * A_side_get(index2z(j)) * (a[i - 1][j] + a[i + 1][j]) + A_Down(index2z(j)) * a[i][
-                    j + 1] + A_Up(
-                    index2z(j) * a[i][j - 1]))) / (K / l * (2 * A_side_get(index2z(j))) + A_Down(index2z(j)) + A_Up(
-                    index2z(j)))
+                a[i][j] = (K / r * (area_down(index2z(j)) * a[i][j + 1] + area_up(index2z(j)) * a[i][j - 1]) + K / l * (
+                        2 * area_side_get(index2z(j))) * (a[i - 1][j] + a[i + 1][j])) / (
+                        K / r * (area_down(index2z(j)) + area_up(index2z(j)) + K / l * 2 * area_side_get(index2z(j))))
             else:
-                K / l * (2 * A_side_get(index2z(j)) * (a[i - 1][j] + a[i + 1][j]) + A_Down(index2z(j)) * a[i][
-                    j - 1] + A_Up(
-                    index2z(j) * a[i][j + 1])) / (K / l * (2 * A_side_get(index2z(j))) + A_Down(index2z(j)) + A_Up(
-                    index2z(j)))
+                a[i][j] = (K / r * (area_down(index2z(j)) * a[i][j - 1] + area_up(index2z(j)) * a[i][j + 1]) + K / l * (
+                        2 * area_side_get(index2z(j))) * (a[i - 1][j] + a[i + 1][j])) / (
+                        K / r * (area_down(index2z(j)) + area_up(index2z(j)) + K / l * 2 * area_side_get(index2z(j))))
     i = 200
     for j in range(101):
         if j == 0:
-            a[i][j] = ((K * A_side_get(index2z(j)) / l) * (a[i - 1][j]) + h_water * A_Up(
-                index2z(j)) * T_water + A_Down(index2z(j)) * K * a[i][j + 1] + A_side_get(index2z(j)) * w) / (
-                              K * A_side_get(index2z(j)) / l + K * A_Down(index2z(j)) / l + A_Up(
-                          index2z(j)) * h_water)
+            a[i][j] = (area_up(index2z(j)) * h_water * T_water + a[i][j + 1] * K * (
+                    area_down(index2z(j)) / r + area_side_get(index2z(j)) / l * (a[i - 1][j])) + w * area_side_get(index2z(j))) / (
+                              area_up(index2z(j)) * h_water + K * (
+                               area_down(index2z(j)) / r + area_side_get(index2z(j)) / l))
         elif j == 100:
-            a[i][j] = ((K * A_side_get(index2z(j)) / l) * (a[i - 1][j]) + h_air * A_Up(
-                index2z(j)) * T_air + A_Down(index2z(j)) * K * a[i][j - 1] + A_side_get(index2z(j)) * w) / (
-                              K * A_side_get(index2z(j)) / l + K * A_Down(index2z(j)) / l + A_Up(
-                          index2z(j)) * h_air)
+            a[i][j] = (area_up(index2z(j)) * h_air * T_air + a[i][j - 1] * K * (
+                    area_down(index2z(j)) / r + area_side_get(index2z(j)) / l * (a[i - 1][j])) + w * area_side_get(index2z(j))) / (
+                              area_up(index2z(j)) * h_water + K * (
+                               area_down(index2z(j)) / r + area_side_get(index2z(j)) / l))
         elif 0 < j < 51:
-            (K / l * (A_side_get(index2z(j)) * (a[i - 1][j]) + A_Down(index2z(j)) * a[i][j + 1] + A_Up(
-                index2z(j) * a[i][j - 1])) + A_side_get(index2z(j)) * w) / (
-                    K / l * (A_side_get(index2z(j))) + k*A_Down(index2z(j))/r + A_Up(
-                index2z(j))*K/r)
+            a[i][j] = (K / r * (area_down(index2z(j)) * a[i][j + 1] + area_up(index2z(j)) * a[i][j - 1]) + K / l * (
+                    area_side_get(index2z(j))) * (a[i - 1][j]) + area_side_get(index2z(j)) * w) / (
+                              K / r * (area_down(index2z(j)) + area_up(index2z(j)) + K / l * area_side_get(index2z(j))))
         else:
-            (K / l * (A_side_get(index2z(j)) * (a[i - 1][j]) + A_Down(index2z(j)) * a[i][j - 1] + A_Up(
-                index2z(j) * a[i][j + 1])) + A_side_get(index2z(j)) * w) / (
-                    K / l * (2 * A_side_get(index2z(j))) + A_Down(index2z(j)) + A_Up(
-                index2z(j)))
+            a[i][j] = (K / r * (area_down(index2z(j)) * a[i][j - 1] + area_up(index2z(j)) * a[i][j + 1]) + K / l * (
+                    area_side_get(index2z(j))) * (a[i - 1][j]) + area_side_get(index2z(j)) * w) / (
+                              K / r * (area_down(index2z(j)) + area_up(index2z(j)) + K / l * area_side_get(index2z(j))))
 f = open("final senter.txt", "w")
 for i in range(201):
-    print(i,(a[i][50]))
+    print(i, (a[i][50]))
