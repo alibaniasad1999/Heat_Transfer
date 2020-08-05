@@ -49,7 +49,7 @@ def index2z(j):
 a = np.zeros((201, 101))
 for i in range(201):
     for j in range(101):
-        a[i, j] = 30
+        a[i, j] = 40
 n = int(input())
 f = open("final center for 1000 s .txt", "w")
 for k in range(n):
